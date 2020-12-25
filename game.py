@@ -1,5 +1,7 @@
 import tkinter as tk
 from tkinter import *
+import random
+
 
 value_matrix = [[0 for x in range(9)] for y in range(9)]
 button_matrix = [[None for x in range(9)] for y in range(9)]
@@ -11,6 +13,13 @@ turn_count = 0
 curr_options = option_matrix[0]
 vert_labels = [None for x in range(9)]
 hor_labels = [None for x in range(9)]
+p1_score = ""
+p1_target = ""
+p2_score = ""
+p2_target = ""
+score_labels = [None for x in range(2)]
+max_size = 9
+rounds = 4
 
 
 
@@ -60,13 +69,51 @@ def render():
 
         hor_labels[i] = lab
 
+    #Create player score section
+    foo = [0,1]
+    if (random.choice(foo) == 0):
+        p1_target = "even"
+        p2_target = "odd"
+    else:
+        p1_target = "odd"
+        p2_target = "even"
+
+    score_labels[0] = tk.Label(root, text=0,
+        borderwidth=0, height = 4, width = 5)
+    score_labels[0].grid(row=4,column=12, columnspan = 2)
+
+    score_labels[1] = tk.Label(root, text=0,
+        borderwidth=0, height = 4, width = 5)
+    score_labels[1].grid(row=6,column=12, columnspan = 2)
+
+    tk.Label(root, text="Player 1 - %s" %(p1_target),
+        borderwidth=0, height = 4, width = 10).grid(row=3,column=12, columnspan = 2, rowspan = 2)
+
+    tk.Label(root, text="Player 2 - %s" %(p2_target),
+        borderwidth=0, height = 4, width = 10).grid(row=5,column=12, columnspan = 2, rowspan = 2)
 
 
 
-    root.update()
-    root.after(0, fix)
+    freeze_all()
+    unfreeze_range(3)
+
 
     root.mainloop()
+
+#freezes all but the center 3x3 cells
+def freeze_all():
+    for i in range(0,5):
+        for a in looper(i):
+            button_matrix[a[0]][a[1]].configure(bg="black", state = "disabled")
+
+
+
+
+#unfreeze a specific range
+def unfreeze_range(x):
+    for a in looper(x):
+        button_matrix[a[0]][a[1]].configure(bg="black", state = "normal")
+
 
 
 
@@ -104,7 +151,7 @@ def display_options(opts, root):
            text=a,
            padx = 20,
            variable=rad_val,
-           value=a).grid(row = i+1, column = 13)
+           value=a).grid(row = i, column = 13)
 
         i = i+1
 
@@ -118,11 +165,14 @@ def change_value_matrix(r,c,val, b):
         return
     global turn_count
     turn_count = turn_count+1
+    if (turn_count//6 >= 4):
+        freeze_all()
 
     #CHANGING AVAILABLE OPTIONS every 6 turns for now
     global curr_options
     global option_matrix
     global value_matrix
+    global rounds
 
     value_matrix[r][c] = rad_val.get()
     b.config(text = rad_val.get())
@@ -131,27 +181,71 @@ def change_value_matrix(r,c,val, b):
     #b.config(text = rad_val.get())
     change_sums(r,c)
     if (turn_count%6 == 0):
+        if (turn_count//6 >= 4):
+            freeze_all()
+
         curr_options = option_matrix[turn_count//6]
         display_options(curr_options, root)
+        rounds = rounds-1
+        change_board()
         rad_val.set(-1)
+
+    update_scores()
 
 def change_sums(r,c):
     vert_labels[r].config(text=row_sum(r))
     hor_labels[c].config(text=col_sum(c))
 
 
+def update_scores():
+    global p1_score
+    global p1_target
+    global p2_score
+    global p2_target
+    global max_size
+    global score_labels
 
+    even_sum = 0
+    odd_sum = 0
+
+    for i in range(max_size):
+        curr_sum_vert = row_sum(i)
+        if (curr_sum_vert%2 == 0):
+            even_sum = even_sum+curr_sum_vert
+        else:
+            odd_sum = odd_sum+curr_sum_vert
+
+        curr_sum_hor = col_sum(i)
+        if (curr_sum_hor%2 == 0):
+            even_sum = even_sum+curr_sum_hor
+        else:
+            odd_sum = odd_sum+curr_sum_hor
+
+    if (p1_target == "even"):
+        score_labels[0].config(text = even_sum)
+        score_labels[1].config(text = odd_sum)
+    else:
+        score_labels[0].config(text = odd_sum)
+        score_labels[1].config(text = even_sum)
+
+#calculates sum of given row
 def row_sum(i):
     global value_matrix
     summed = sum(value_matrix[i])
 
     return summed
 
+#calculates sum of given col
 def col_sum(i):
     global value_matrix
     summed = sum(row[i] for row in value_matrix)
 
     return summed
+
+def change_board():
+    global rounds
+    freeze_all()
+    unfreeze_range(rounds-1)
 
 
 def temp():
@@ -160,7 +254,21 @@ def temp():
     photo=PhotoImage(file="Black.png")
     button_matrix[1][0].configure(bg="red", state = "disabled")
 
-    print(button_matrix[1][0])
+    #print(button_matrix[1][0])
+    print(looper(1))
+    for a in looper(1):
+        button_matrix[a[0]][a[1]].configure(bg="black", state = "disabled")
+
+def looper(x):
+    arr = []
+    for i in range (0+x,9-x):
+        arr.append([x,i])
+        arr.append([i,x])
+        arr.append([8-x,i])
+        arr.append([i,8-x])
+
+    return arr
+
 
 
 
