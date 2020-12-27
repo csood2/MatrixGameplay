@@ -27,6 +27,8 @@ score_labels = [None for x in range(2)]
 max_size = 9
 rounds = 4
 round_start_player = 1
+player_labels = [None for x in range(2)]
+ended = 0
 
 
 
@@ -38,6 +40,7 @@ def main():
 
 def render():
     global rad_val
+    global player_labels
 
 
     root.title("GOdd Even")
@@ -56,9 +59,9 @@ def render():
     #display available options currently with radio
     #buttons which are updated with turns
     display_new_round()
-    B = tk.Button(root, text ="Hello")
+    B = tk.Button(root, text ="Exit")
     B.grid(row=12,column=12)
-    B.config(command = temp)
+    B.config(command = quitter)
 
     #render vertical sum labels
     for i in range(0, 9):
@@ -95,15 +98,22 @@ def render():
         borderwidth=0, height = 4, width = 5)
     score_labels[1].grid(row=6,column=12, columnspan = 2)
 
-    tk.Label(root, text="Player 1 - %s" %(p1_target),
-        borderwidth=0, height = 4, width = 10).grid(row=3,column=12, columnspan = 2, rowspan = 2)
+    p1 = tk.Label(root, text="Player 1 - %s" %(p1_target),
+        borderwidth=0, height = 3, width = 15)
+    p1.grid(row=3,column=12, columnspan = 2, rowspan = 2)
+    player_labels[0]= p1
 
-    tk.Label(root, text="Player 2 - %s" %(p2_target),
-        borderwidth=0, height = 4, width = 10).grid(row=5,column=12, columnspan = 2, rowspan = 2)
+    p2 = tk.Label(root, text="Player 2 - %s" %(p2_target),
+        borderwidth=0, height = 3, width = 15)
+    p2.grid(row=5,column=12, columnspan = 2, rowspan = 2)
+    player_labels[1] = p2
+
+    player_labels[0].configure(font="sans 16 bold")
+    player_labels[1].configure(font="sans 13")
 
 
 
-    freeze_all()
+    freeze_allx()
     unfreeze_range(3,6)
 
 
@@ -115,6 +125,11 @@ def freeze_all():
         for a in looper(i):
             button_matrix[a[0]][a[1]].configure(bg="black", state = "disabled")
 
+def freeze_allx():
+    for i in range(0,5):
+        for a in looper(i):
+            button_matrix[a[0]][a[1]].configure(bg="black", state = "disabled", text = "")
+
 
 
 
@@ -123,7 +138,7 @@ def unfreeze_range(x, count):
     if (count == -1):
 
         for a in looper(x):
-            button_matrix[a[0]][a[1]].configure(bg="black", state = "normal")
+            button_matrix[a[0]][a[1]].configure( state = "normal")
 
     else:
         arr = looper(x)
@@ -131,7 +146,7 @@ def unfreeze_range(x, count):
         chosen = random.sample(arr, 6)
 
         for a in chosen:
-            button_matrix[a[0]][a[1]].configure(bg="black", state = "normal")
+            button_matrix[a[0]][a[1]].configure( state = "normal", text = value_matrix[a[0]][a[1]])
 
 
 def fix():
@@ -202,9 +217,12 @@ def change_value_matrix(r,c,val, b):
     if (rad_val.get() == -1):
         return
     global turn_count
+    global ended
     turn_count = turn_count+1
     if (turn_count//6 >= 4):
+        ended=1
         freeze_all()
+
 
     #CHANGING AVAILABLE OPTIONS every 6 turns for now
     global curr_options
@@ -215,9 +233,11 @@ def change_value_matrix(r,c,val, b):
     global curr_player
     global curr_options2
     global curr_options1
+    global player_labels
 
     value_matrix[r][c] = rad_val.get()
-    b.config(text = rad_val.get())
+    update_scores()
+    b.config(text = rad_val.get(), font='sans 13 bold', state="disabled")
     print("printing val_matr:\n")
     print(value_matrix)
     #b.config(text = rad_val.get())
@@ -240,6 +260,12 @@ def change_value_matrix(r,c,val, b):
             #displying next players options
             display_options(curr_options2, root)
 
+            #highlight and unhighlight appropriate player: (need to show that player 2 will play next - switching from 1 to 2)
+            player_labels[1].configure(font="sans 16 bold")
+            player_labels[0].configure(font="sans 13")
+
+
+
         else:
             print("curr_options2 is:")
             print(curr_options2)
@@ -250,17 +276,38 @@ def change_value_matrix(r,c,val, b):
             print(curr_options2)
             #displying next players options
             display_options(curr_options1, root)
+
+            #highlight and unhighlight appropriate player: (need to show that player 1 will play next - switching from 2 to 1)
+            player_labels[0].configure(font="sans 16 bold")
+            player_labels[1].configure(font="sans 13")
+
+
         rad_val.set(-1)
 
 
     #switch players after every turn
     if (curr_player == 1):
-        curr_player = 2
+
+        #if starting new round then repeat previous player and highlight appropriately
+        if (turn_count%6 == 0):
+            player_labels[0].configure(font="sans 16 bold")
+            player_labels[1].configure(font="sans 13")
+        else:
+            #done in "else" since we change only if non-new round
+            curr_player = 2
     else:
-        curr_player = 1
+
+        #if starting new round then repeat previous player and highlight appropriately
+        if (turn_count%6 == 0):
+            player_labels[1].configure(font="sans 16 bold")
+            player_labels[0].configure(font="sans 13")
+        else:
+            #done in "else" since we change only if non-new round
+            curr_player = 1
 
 
-    update_scores()
+
+
 
 def display_new_round():
     global turn_count
@@ -358,7 +405,8 @@ def change_board():
     unfreeze_range(rounds-1, 6)
 
 
-def temp():
+def quitter():
+    exit()
     print("doing this")
     global button_matrix
     photo=PhotoImage(file="Black.png")
