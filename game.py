@@ -30,6 +30,12 @@ round_start_player = 1
 player_labels = [None for x in range(2)]
 ended = 0
 
+# number of rounds out of the 12 that are counted
+countable_rounds = 11
+
+# 1 for player 1, 2 for player 2 , 0 for draw when filled
+result_arr = []
+
 
 
 def main():
@@ -54,7 +60,7 @@ def render():
             b.grid(row=r,column=c)
 
             button_matrix[r][c] = b
-            print(button_matrix)
+            #print(button_matrix)
 
     #display available options currently with radio
     #buttons which are updated with turns
@@ -160,31 +166,43 @@ def create_all_options():
     global option_matrix1
     global option_matrix2
 
-    option_matrix1[0][0] = 0
-    option_matrix1[0][1] = 1
-    option_matrix1[0][2] = 1
-    option_matrix1[1][0] = 2
-    option_matrix1[1][1] = 3
-    option_matrix1[1][2] = 3
-    option_matrix1[2][0] = 4
-    option_matrix1[2][1] = 5
-    option_matrix1[2][2] = 5
-    option_matrix1[3][0] = 6
-    option_matrix1[3][1] = 7
-    option_matrix1[3][2] = 7
+    total_options = [0,1,2,3,4,5,6,7,8,9,10,11]
+    for i in range(0,4):
+        for j in range(0,3):
+            print(total_options)
 
-    option_matrix2[0][0] = 0
-    option_matrix2[0][1] = 1
-    option_matrix2[0][2] = 1
-    option_matrix2[1][0] = 2
-    option_matrix2[1][1] = 3
-    option_matrix2[1][2] = 3
-    option_matrix2[2][0] = 4
-    option_matrix2[2][1] = 5
-    option_matrix2[2][2] = 5
-    option_matrix2[3][0] = 6
-    option_matrix2[3][1] = 7
-    option_matrix2[3][2] = 7
+            chosen_curr = random.choice(total_options)
+            total_options.remove(chosen_curr)
+            option_matrix1[i][j] = chosen_curr
+            option_matrix2[i][j] = chosen_curr
+
+
+    #
+    # option_matrix1[0][0] = 0
+    # option_matrix1[0][1] = 1
+    # option_matrix1[0][2] = 1
+    # option_matrix1[1][0] = 2
+    # option_matrix1[1][1] = 3
+    # option_matrix1[1][2] = 3
+    # option_matrix1[2][0] = 4
+    # option_matrix1[2][1] = 5
+    # option_matrix1[2][2] = 5
+    # option_matrix1[3][0] = 6
+    # option_matrix1[3][1] = 7
+    # option_matrix1[3][2] = 7
+    #
+    # option_matrix2[0][0] = 0
+    # option_matrix2[0][1] = 1
+    # option_matrix2[0][2] = 1
+    # option_matrix2[1][0] = 2
+    # option_matrix2[1][1] = 3
+    # option_matrix2[1][2] = 3
+    # option_matrix2[2][0] = 4
+    # option_matrix2[2][1] = 5
+    # option_matrix2[2][2] = 5
+    # option_matrix2[3][0] = 6
+    # option_matrix2[3][1] = 7
+    # option_matrix2[3][2] = 7
     #print(option_matrix)
 
 
@@ -242,8 +260,17 @@ def change_value_matrix(r,c,val, b):
     print(value_matrix)
     #b.config(text = rad_val.get())
     change_sums(r,c)
+
+    # based on current even and odd sum, decides and appends to the result_arr array (0->d, player-1->1, player-2->2)
+    if (turn_count%2 == 0):
+        record_scores()
+        print("recorded_scores:")
+        print(result_arr)
+
     if (turn_count%6 == 0):
+        record_scores()
         display_new_round()
+
         rounds = rounds-1
         change_board()
 
@@ -307,6 +334,25 @@ def change_value_matrix(r,c,val, b):
 
 
 
+def record_scores():
+    even_sum = get_even_odd_sums()[0]
+    odd_sum = get_even_odd_sums()[1]
+
+    if (even_sum > odd_sum):
+        if (p1_target == "even"):
+            result_arr.append(1)
+        else:
+            result_arr.append(2)
+
+    if (odd_sum > even_sum):
+        if (p1_target == "odd"):
+            result_arr.append(1)
+        else:
+            result_arr.append(2)
+
+    if (odd_sum == even_sum):
+        result_arr.append(0)
+
 
 
 def display_new_round():
@@ -362,6 +408,39 @@ def update_scores():
     global max_size
     global score_labels
 
+    even_sum = get_even_odd_sums()[0]
+    odd_sum = get_even_odd_sums()[1]
+
+    # for i in range(max_size):
+    #     curr_sum_vert = row_sum(i)
+    #     if (curr_sum_vert%2 == 0):
+    #         even_sum = even_sum+curr_sum_vert
+    #     else:
+    #         odd_sum = odd_sum+curr_sum_vert
+    #
+    #     curr_sum_hor = col_sum(i)
+    #     if (curr_sum_hor%2 == 0):
+    #         even_sum = even_sum+curr_sum_hor
+    #     else:
+    #         odd_sum = odd_sum+curr_sum_hor
+
+    if (p1_target == "even"):
+        score_labels[0].config(text = even_sum)
+        score_labels[1].config(text = odd_sum)
+    else:
+        score_labels[0].config(text = odd_sum)
+        score_labels[1].config(text = even_sum)
+
+#returns an array which returns the sums of the even and odd col and row totals in an array [even_sum, odd_sum]
+def get_even_odd_sums():
+    global p1_score
+    global p1_target
+    global p2_score
+    global p2_target
+    global max_size
+    global score_labels
+
+
     even_sum = 0
     odd_sum = 0
 
@@ -378,12 +457,7 @@ def update_scores():
         else:
             odd_sum = odd_sum+curr_sum_hor
 
-    if (p1_target == "even"):
-        score_labels[0].config(text = even_sum)
-        score_labels[1].config(text = odd_sum)
-    else:
-        score_labels[0].config(text = odd_sum)
-        score_labels[1].config(text = even_sum)
+    return [even_sum, odd_sum]
 
 #calculates sum of given row
 def row_sum(i):
