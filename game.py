@@ -1,3 +1,4 @@
+#### WITHOUT OPPONENT CODED IN
 import tkinter as tk
 from tkinter import *
 import random
@@ -35,6 +36,10 @@ countable_rounds = 11
 
 # 1 for player 1, 2 for player 2 , 0 for draw when filled
 result_arr = []
+
+# player option label radio_list
+
+p_opt_labels = [None for x in range(2)]
 
 
 
@@ -116,6 +121,9 @@ def render():
 
     player_labels[0].configure(font="sans 16 bold")
     player_labels[1].configure(font="sans 13")
+
+    # render the options_remaining hor_labels
+    o1 = tk.Label()
 
 
 
@@ -209,6 +217,7 @@ def create_all_options():
 
 def display_options(opts, root):
     global radio_list
+    global p_opt_labels
     for b in radio_list:
         if (b):
             b.grid_forget()
@@ -225,6 +234,23 @@ def display_options(opts, root):
 
 
         i = i+1
+
+    p1_optstring = ""
+    p2_optstring = ""
+    for i in curr_options1:
+        p1_optstring = p1_optstring + str(i) + "  "
+
+    for j in curr_options2:
+        p2_optstring = p2_optstring + str(j) + "  "
+
+    for k in range(len(player_labels)):
+        if (player_labels[k] == None):
+            p_opt_labels[k] = tk.Label(root, text = "")
+            p_opt_labels[k].grid(row = 4+2*k, column = 15)
+
+    p_opt_labels[0].configure(text = "player1 opts = %s" %(p1_optstring))
+    p_opt_labels[1].configure(text = "player2 opts = %s" %(p2_optstring))
+
 
 
 
@@ -268,7 +294,7 @@ def change_value_matrix(r,c,val, b):
         print(result_arr)
 
     if (turn_count%6 == 0):
-        record_scores()
+
         display_new_round()
 
         rounds = rounds-1
