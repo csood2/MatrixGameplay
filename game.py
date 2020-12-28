@@ -281,6 +281,8 @@ def change_value_matrix(r,c,val, b):
 
     value_matrix[r][c] = rad_val.get()
     update_scores()
+
+    #change text of button pressed
     b.config(text = rad_val.get(), font='sans 13 bold', state="disabled")
     print("printing val_matr:\n")
     print(value_matrix)
