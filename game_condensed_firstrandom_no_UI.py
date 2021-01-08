@@ -3,13 +3,14 @@
 import tkinter as tk
 from tkinter import *
 from tkinter.messagebox import showinfo
+import importlib
 
 import random
 import copy
 import time
 
 #num_open is the number of open slots initially in each printing
-num_open = 8
+num_open = 10
 
 #stays the same
 total_rounds = 4
@@ -20,7 +21,7 @@ value_matrix = [[0 for x in range(9)] for y in range(9)]
 option_matrix1 = [[0 for x in range(num_open//2)] for y in range(total_rounds)]
 option_matrix2 = [[0 for x in range(num_open//2)] for y in range(total_rounds)]
 #radio_list = [None for x in range(num_open//2)]
-root = tk.Tk()
+tk.Tk()
 rad_val = tk.IntVar()
 rad_val.set(-1)
 turn_count = 0
@@ -67,11 +68,16 @@ next_button = None
 #for analysis
 excel_list = []
 
+#number of cells that are opened (not necessarily all filled)
+open_ring1 = num_open
+open_ring2 = num_open
+
 
 
 def main():
     create_all_options()
     render()
+    clearer()
 
 
 
@@ -174,8 +180,9 @@ def render():
     # o1 = tk.Label()
 
     #freeze_allx()
+    global open_ring1
 
-    unfreeze_range(2,num_open)
+    unfreeze_range(2,open_ring1)
     starter()
     #show_inner()
 
@@ -211,7 +218,7 @@ def unfreeze_range(x, count):
         #if want to unfreeze specific cells within the ring
         arr = looper(x)
         #print(looper(x))
-        chosen = random.sample(arr, num_open)
+        chosen = random.sample(arr, count)
 
         open_slots = []
 
@@ -224,7 +231,8 @@ def unfreeze_range(x, count):
             open_slots.append(copy.deepcopy(a))
         #print("opened slots:")
         #print(open_slots)
-
+        #print(open_slots)
+    #print(open_slots)
 
 
 def fix():
@@ -238,10 +246,11 @@ def create_all_options():
     global option_matrix1
     global option_matrix2
 
-    total_options = [0,1,2,3,4,5,6,7]
-    # total_options = [1,3,5,7,9,11,13,15,17,19,21,23]
-    # total_options = [0,1,2,3,4,5,6,7,8,9,10,11]
-    # total_options = [0,2,4,6,8,10,12,14,16,18,20,22]
+    #total_options = [1,3,5,7,9,1,3,5,7,9]
+    # total_options = [1,2,3,5,7,1,2,3,5,7]
+    #total_options = [0,1,2,3,5,0,1,2,3,5]
+    total_options = [1,3,5,7,9,1,3,5,7,9]
+
     for i in range(0,total_rounds-2):
         for j in range(0,num_open//2):
             #print(total_options)
@@ -249,36 +258,25 @@ def create_all_options():
             chosen_curr = random.choice(total_options)
             total_options.remove(chosen_curr)
             option_matrix1[i][j] = chosen_curr
-            option_matrix2[i][j] = chosen_curr
+            #option_matrix2[i][j] = chosen_curr
 
 
-
-    # option_matrix1[0][0] = 0
-    # option_matrix1[0][1] = 1
-    # option_matrix1[0][2] = 2
-    # option_matrix1[1][0] = 2
-    # option_matrix1[1][1] = 3
-    # option_matrix1[1][2] = 4
-    # option_matrix1[2][0] = 5
-    # option_matrix1[2][1] = 6
-    # option_matrix1[2][2] = 7
-    # option_matrix1[3][0] = 7
-    # option_matrix1[3][1] = 8
-    # option_matrix1[3][2] = 9
+    # option_matrix1[0][0] = 1
+    # option_matrix1[0][1] = 3
+    # option_matrix1[0][2] = 5
+    # option_matrix1[0][3] = 7
+    # option_matrix1[0][4] = 9
+    # #option_matrix1[0][5] = 6
     #
-    # option_matrix2[0][0] = 0
-    # option_matrix2[0][1] = 1
-    # option_matrix2[0][2] = 2
-    # option_matrix2[1][0] = 2
-    # option_matrix2[1][1] = 3
-    # option_matrix2[1][2] = 4
-    # option_matrix2[2][0] = 5
-    # option_matrix2[2][1] = 6
-    # option_matrix2[2][2] = 7
-    # option_matrix2[3][0] = 7
-    # option_matrix2[3][1] = 8
-    # option_matrix2[3][2] = 9
-    #print(option_matrix)
+    # option_matrix1[1][0] = 1
+    # option_matrix1[1][1] = 3
+    # option_matrix1[1][2] = 5
+    # option_matrix1[1][3] = 7
+    # option_matrix1[1][4] = 9
+    # #option_matrix1[1][5] = 6
+
+    option_matrix2 = copy.deepcopy(option_matrix1)
+
 
 
 
@@ -521,7 +519,7 @@ def record_scores():
             result_arr.append(2)
 
     if (odd_sum == even_sum):
-        result_arr.append(0)
+        result_arr.append(1.5)
 
 
 
@@ -698,7 +696,8 @@ def change_board():
     global rounds
     global total_rounds
     #freeze_all()
-    unfreeze_range(total_rounds-rounds, num_open)
+    global open_ring2
+    unfreeze_range(total_rounds-rounds, open_ring2)
 
 
 def quitter():
@@ -877,24 +876,24 @@ def fill_inner(val):
         assert (1==2), "player target is not even or odd"
 
 
-    value_matrix[3][4] = val
+    value_matrix[3][4] = 7
     excel_list.append(p1_letter)
-    excel_list = excel_list + get_pos_val_concat([3,4,val])
+    excel_list = excel_list + get_pos_val_concat([3,4,7])
     record_scores()
 
-    value_matrix[5][4] = val
+    value_matrix[5][4] = 7
     excel_list.append(p2_letter)
-    excel_list = excel_list + get_pos_val_concat([5,4,val])
+    excel_list = excel_list + get_pos_val_concat([5,4,7])
     record_scores()
 
-    value_matrix[4][3] = val
+    value_matrix[4][3] = 7
     excel_list.append(p1_letter)
-    excel_list = excel_list + get_pos_val_concat([4,3,val])
+    excel_list = excel_list + get_pos_val_concat([4,3,7])
     record_scores()
 
-    value_matrix[4][5] = val
+    value_matrix[4][5] = 7
     excel_list.append(p2_letter)
-    excel_list = excel_list + get_pos_val_concat([4,5,val])
+    excel_list = excel_list + get_pos_val_concat([4,5,7])
     record_scores()
 
 def show_inner():
@@ -933,6 +932,125 @@ def file_append():
         myfile.write(","+joined_details+"\n")
     #print(result_arr)
     return
+
+def clearer():
+    global num_ope
+
+    #stays the same
+    global total_round
+
+
+    global value_matrix
+
+    global option_matrix1
+    global option_matrix2
+
+
+    global rad_val
+    global turn_count
+    #curr_options = option_matrix[0]
+    global curr_options1
+    global curr_options2
+    global curr_player
+
+    global p1_score
+    global p1_target
+    global p2_score
+    global p2_target
+
+    global max_size
+
+
+    global rounds
+    global round_start_player
+
+    global ended
+
+    global auto_player
+
+
+    # number of rounds out of the 12 that are counted
+    global countable_rounds
+
+    # 1 for player 1, 2 for player 2 , 0 for draw when filled
+    global result_arr
+
+
+
+    # stores currently open buttons (array of x,y) pair arrays
+    # has num_open rows and 2 cols where each col stores x or y of the current open slot
+    global open_slots
+
+
+    #for debugging
+    global do_next
+    global next_button
+
+    #for analysis
+    global excel_list
+
+    global num_ope
+
+    #stays the same
+    global total_round
+
+
+
+
+
+
+
+
+
+    del value_matrix
+
+    del option_matrix1
+    del option_matrix2
+
+
+    del rad_val
+    del turn_count
+    #curr_options = option_matrix[0]
+    del curr_options1
+    del curr_options2
+    del curr_player
+
+
+    del p1_score
+    del p1_target
+    del p2_score
+    del p2_target
+
+    del max_size
+
+
+    del rounds
+    del round_start_player
+    del ended
+
+    del auto_player
+
+
+    # number of rounds out of the 12 that are counted
+    del countable_rounds
+
+    # 1 for player 1, 2 for player 2 , 0 for draw when filled
+    del result_arr
+
+
+
+    # stores currently open buttons (array of x,y) pair arrays
+    # has num_open rows and 2 cols where each col stores x or y of the current open slot
+    del open_slots
+
+
+    #for debugging
+    del do_next
+    del next_button
+
+    #for analysis
+    del excel_list
+
 
 
 

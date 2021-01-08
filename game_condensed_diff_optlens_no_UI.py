@@ -3,6 +3,7 @@
 import tkinter as tk
 from tkinter import *
 from tkinter.messagebox import showinfo
+import importlib
 
 import random
 import copy
@@ -16,11 +17,11 @@ total_rounds = 4
 
 
 value_matrix = [[0 for x in range(9)] for y in range(9)]
-button_matrix = [[None for x in range(9)] for y in range(9)]
+#button_matrix = [[None for x in range(9)] for y in range(9)]
 option_matrix1 = [[0 for x in range(num_open//2)] for y in range(total_rounds)]
 option_matrix2 = [[0 for x in range(num_open//2)] for y in range(total_rounds)]
-radio_list = [None for x in range(num_open//2)]
-root = tk.Tk()
+#radio_list = [None for x in range(num_open//2)]
+tk.Tk()
 rad_val = tk.IntVar()
 rad_val.set(-1)
 turn_count = 0
@@ -28,19 +29,19 @@ turn_count = 0
 curr_options1 = option_matrix1[0]
 curr_options2 = option_matrix2[0]
 curr_player = 1
-vert_labels = [None for x in range(9)]
-hor_labels = [None for x in range(9)]
+#vert_labels = [None for x in range(9)]
+#hor_labels = [None for x in range(9)]
 p1_score = ""
 p1_target = ""
 p2_score = ""
 p2_target = ""
-score_labels = [None for x in range(2)]
+#score_labels = [None for x in range(2)]
 max_size = 9
 
 #increaeses with each round change
 rounds = 2
 round_start_player = 1
-player_labels = [None for x in range(2)]
+#player_labels = [None for x in range(2)]
 ended = 0
 
 auto_player = 2
@@ -53,11 +54,11 @@ countable_rounds = 11
 result_arr = []
 
 # player option label radio_list
-p_opt_labels = [None for x in range(2)]
+#p_opt_labels = [None for x in range(2)]
 
 # stores currently open buttons (array of x,y) pair arrays
 # has num_open rows and 2 cols where each col stores x or y of the current open slot
-open_slots = []
+open_slots = [[-1 for x in range(2)] for y in range(num_open)]
 
 
 #for debugging
@@ -72,7 +73,7 @@ excel_list = []
 def main():
     create_all_options()
     render()
-
+    clearer()
 
 
 
@@ -82,53 +83,53 @@ def render():
     global next_button
 
 
-    root.title("GOdd Even")
+    #root.title("GOdd Even")
 
     #display main grid
-    for r in range(9):
-        for c in range(9):
-            b = tk.Button(root, text=value_matrix[r][c],
-                borderwidth=1, height = 4, width = 5)
-            b.config(command = lambda r=r, c=c, b=b:change_value_matrix(r,c,rad_val.get(), b))
-            b.grid(row=r,column=c)
-
-            button_matrix[r][c] = b
+    # for r in range(9):
+    #     for c in range(9):
+    #         b = tk.Button(root, text=value_matrix[r][c],
+    #             borderwidth=1, height = 4, width = 5)
+    #         b.config(command = lambda r=r, c=c, b=b:change_value_matrix(r,c,rad_val.get(), b))
+    #         b.grid(row=r,column=c)
+    #
+    #         button_matrix[r][c] = b
             #print(button_matrix)
 
     #display available options currently with radio
     #buttons which are updated with turns
 
     display_new_round()
-    B = tk.Button(root, text ="Exit")
-    B.grid(row=12,column=12)
-    B.config(command = quitter)
-
-    D = tk.Button(root, text ="start")
-    D.grid(row=12,column=13)
-    D.config(command = starter)
-
-    next_button = tk.Button(root, text ="next")
-    print("assigned button was:")
-    print(next_button)
-    next_button.grid(row=12,column=15)
-    next_button.config(command = lambda: do_next.set(1))
-    print(next_button)
+    # B = tk.Button(root, text ="Exit")
+    # B.grid(row=12,column=12)
+    # B.config(command = quitter)
+    #
+    # D = tk.Button(root, text ="start")
+    # D.grid(row=12,column=13)
+    # D.config(command = starter)
+    #
+    # next_button = tk.Button(root, text ="next")
+    # print("assigned button was:")
+    # print(next_button)
+    # next_button.grid(row=12,column=15)
+    # next_button.config(command = lambda: do_next.set(1))
+    # print(next_button)
 
     #render vertical sum labels
-    for i in range(0, 9):
-        lab = tk.Label(root, text=row_sum(i),
-            borderwidth=1, height = 4, width = 5)
-        lab.grid(row=i,column=9)
-
-        vert_labels[i] = lab
-
-    #render horizontal sum labels
-    for i in range(0, 9):
-        lab = tk.Label(root, text=row_sum(i),
-            borderwidth=1, height = 4, width = 5)
-        lab.grid(row=9,column=i)
-
-        hor_labels[i] = lab
+    # for i in range(0, 9):
+    #     lab = tk.Label(root, text=row_sum(i),
+    #         borderwidth=1, height = 4, width = 5)
+    #     lab.grid(row=i,column=9)
+    #
+    #     vert_labels[i] = lab
+    #
+    # #render horizontal sum labels
+    # for i in range(0, 9):
+    #     lab = tk.Label(root, text=row_sum(i),
+    #         borderwidth=1, height = 4, width = 5)
+    #     lab.grid(row=9,column=i)
+    #
+    #     hor_labels[i] = lab
 
     #Create player score section
     global p1_target
@@ -145,47 +146,42 @@ def render():
         result_arr.append("O")
         result_arr.append("E")
 
-    fill_inner(1)
-    for i in value_matrix:
+    fill_inner(7)
+    # for i in value_matrix:
+    #
+    #     print(i)
 
-        print(i)
+    # score_labels[0] = tk.Label(root, text=0,
+    #     borderwidth=0, height = 4, width = 5)
+    # score_labels[0].grid(row=4,column=13, columnspan = 2)
+    #
+    # score_labels[1] = tk.Label(root, text=0,
+    #     borderwidth=0, height = 4, width = 5)
+    # score_labels[1].grid(row=6,column=13, columnspan = 2)
+    #
+    # p1 = tk.Label(root, text="Player 1 - %s" %(p1_target),
+    #     borderwidth=0, height = 3, width = 15)
+    # p1.grid(row=3,column=13, columnspan = 2, rowspan = 2)
+    # player_labels[0]= p1
+    #
+    # p2 = tk.Label(root, text="Player 2 - %s" %(p2_target),
+    #     borderwidth=0, height = 3, width = 15)
+    # p2.grid(row=5,column=13, columnspan = 2, rowspan = 2)
+    # player_labels[1] = p2
 
-    score_labels[0] = tk.Label(root, text=0,
-        borderwidth=0, height = 4, width = 5)
-    score_labels[0].grid(row=4,column=13, columnspan = 2)
+    # player_labels[0].configure(font="sans 16 bold")
+    # player_labels[1].configure(font="sans 13")
+    #
+    # # render the options_remaining hor_labels
+    # o1 = tk.Label()
 
-    score_labels[1] = tk.Label(root, text=0,
-        borderwidth=0, height = 4, width = 5)
-    score_labels[1].grid(row=6,column=13, columnspan = 2)
+    #freeze_allx()
 
-    p1 = tk.Label(root, text="Player 1 - %s" %(p1_target),
-        borderwidth=0, height = 3, width = 15)
-    p1.grid(row=3,column=13, columnspan = 2, rowspan = 2)
-    player_labels[0]= p1
+    unfreeze_range(2,num_open)
+    starter()
+    #show_inner()
 
-    p2 = tk.Label(root, text="Player 2 - %s" %(p2_target),
-        borderwidth=0, height = 3, width = 15)
-    p2.grid(row=5,column=13, columnspan = 2, rowspan = 2)
-    player_labels[1] = p2
-
-    player_labels[0].configure(font="sans 16 bold")
-    player_labels[1].configure(font="sans 13")
-
-    # render the options_remaining hor_labels
-    o1 = tk.Label()
-
-    freeze_allx()
-
-    unfreeze_range(2,10)
-    unfreeze_range(1,10)
-    show_inner()
-    update_scores()
-    for i in range(0,9):
-        for j in range(0,9):
-            change_sums(i,j)
-
-
-    root.mainloop()
+    #root.mainloop()
 
 #freezes all but the center 3x3 cells
 def freeze_all():
@@ -203,8 +199,8 @@ def freeze_allx():
 
 #unfreeze a specific range
 def unfreeze_range(x, count):
-    print("we unfroze:")
-    print(x)
+    # print("we unfroze:")
+    # print(x)
     global open_slots
 
     #if want to unfreeze whole loop
@@ -216,22 +212,20 @@ def unfreeze_range(x, count):
     else:
         #if want to unfreeze specific cells within the ring
         arr = looper(x)
-        print(looper(x))
-        chosen = random.sample(arr, count)
+        #print(looper(x))
+        chosen = random.sample(arr, num_open)
 
-        open_slots_now = []
+        open_slots = []
 
         for a in chosen:
             #unfreeze the relevant buttons
-            button_matrix[a[0]][a[1]].configure( state = "normal", text = value_matrix[a[0]][a[1]])
+            #button_matrix[a[0]][a[1]].configure( state = "normal", text = value_matrix[a[0]][a[1]])
 
 
             #store the cells that were unfrozen for use by the auto-player
-            open_slots_now.append(copy.deepcopy(a))
-        print("opened slots:")
-        print(open_slots)
-
-    open_slots = copy.deepcopy(open_slots + open_slots_now)
+            open_slots.append(copy.deepcopy(a))
+        #print("opened slots:")
+        #print(open_slots)
 
 
 
@@ -246,11 +240,11 @@ def create_all_options():
     global option_matrix1
     global option_matrix2
 
-    #total_options = [1,3,5,7,9,1,3,5,7,9]
+    total_options = [1,3,5,7,9,1,3,5,7,9]
+    #total_options = [0,2,4,6,3,5,7,9,11]
     # # total_options = [1,3,5,7,9,11,13,15,17,19,21,23]
     # # total_options = [0,1,2,3,4,5,6,7,8,9,10,11]
     # # total_options = [0,2,4,6,8,10,12,14,16,18,20,22]
-    total_options = [1,2,5,8,9,1,2,5,8,9]
     for i in range(0,total_rounds-2):
         for j in range(0,num_open//2):
             #print(total_options)
@@ -261,24 +255,50 @@ def create_all_options():
             #option_matrix2[i][j] = chosen_curr
 
 
-
     # option_matrix1[0][0] = 1
-    # option_matrix1[0][1] = 3
-    # option_matrix1[0][2] = 5
-    # option_matrix1[0][3] = 7
-    # option_matrix1[0][4] = 9
-    # option_matrix1[0][5] = 10
+    # option_matrix1[0][1] = 2
+    # option_matrix1[0][2] = 3
+    # option_matrix1[0][3] = 4
+    # option_matrix1[0][4] = 5
+    # #option_matrix1[0][5] = 6
     #
     # option_matrix1[1][0] = 1
-    # option_matrix1[1][1] = 3
-    # option_matrix1[1][2] = 5
-    # option_matrix1[1][3] = 6
-    # option_matrix1[1][4] = 7
-    # option_matrix1[1][5] = 8
-
-
+    # option_matrix1[1][1] = 2
+    # option_matrix1[1][2] = 3
+    # option_matrix1[1][3] = 4
+    # option_matrix1[1][4] = 5
+    #option_matrix1[1][5] = 6
 
     option_matrix2 = copy.deepcopy(option_matrix1)
+
+
+
+    # option_matrix1[0][0] = 0
+    # option_matrix1[0][1] = 1
+    # option_matrix1[0][2] = 2
+    # option_matrix1[1][0] = 2
+    # option_matrix1[1][1] = 3
+    # option_matrix1[1][2] = 4
+    # option_matrix1[2][0] = 5
+    # option_matrix1[2][1] = 6
+    # option_matrix1[2][2] = 7
+    # option_matrix1[3][0] = 7
+    # option_matrix1[3][1] = 8
+    # option_matrix1[3][2] = 9
+    #
+    # option_matrix2[0][0] = 0
+    # option_matrix2[0][1] = 1
+    # option_matrix2[0][2] = 2
+    # option_matrix2[1][0] = 2
+    # option_matrix2[1][1] = 3
+    # option_matrix2[1][2] = 4
+    # option_matrix2[2][0] = 5
+    # option_matrix2[2][1] = 6
+    # option_matrix2[2][2] = 7
+    # option_matrix2[3][0] = 7
+    # option_matrix2[3][1] = 8
+    # option_matrix2[3][2] = 9
+    #print(option_matrix)
 
 
 
@@ -296,7 +316,7 @@ def display_options(opts, root):
            padx = 20,
            variable=rad_val,
            value=a)
-        radb.grid(row = i, column = 18)
+        radb.grid(row = i, column = 13)
         radio_list.append(radb)
 
 
@@ -324,11 +344,11 @@ def display_options(opts, root):
 def change_value_matrix(r,c,val, b):
     global next_button
     global excel_list
-    print(next_button)
-    #next_button.wait_variable(do_next)
-    print(r)
-    print(c)
-    print(val)
+    # print(next_button)
+    # #next_button.wait_variable(do_next)
+    # print(r)
+    # print(c)
+    # print(val)
 
     global rad_val
     rad_val.set(val)
@@ -336,16 +356,15 @@ def change_value_matrix(r,c,val, b):
     global turn_count
     global ended
     turn_count = turn_count+1
-    # if (turn_count//num_open >= total_rounds-2):
-    #     ended=1
-    #     print("endedxx")
-    #     update_scores()
-    #     freeze_all()
+    if (turn_count//num_open >= total_rounds-2):
+        ended=1
+        #print("endedxx")
+        #freeze_all()
 
     global open_slots
     open_slots.remove([r,c])
-    print ("open_slots:")
-    print(open_slots)
+    # print ("open_slots:")
+    # print(open_slots)
 
 
     global curr_options
@@ -359,71 +378,73 @@ def change_value_matrix(r,c,val, b):
     global player_labels
 
     value_matrix[r][c] = rad_val.get()
-    update_scores()
-    change_sums(r,c)
+    #update_scores()
 
     #change text of button pressed
-    b.config(text = rad_val.get(), font='sans 13 bold', state="disabled")
-    root.update()
-    print("printing val_matr:\n")
-    print(value_matrix)
-    #b.config(text = rad_val.get())
-    change_sums(r,c)
+    # b.config(text = rad_val.get(), font='sans 13 bold', state="disabled")
+    # root.update()
+    # print("printing val_matr:\n")
+    # print(value_matrix)
+    # #b.config(text = rad_val.get())
+    # change_sums(r,c)
 
     # based on current even and odd sum, decides and appends to the result_arr array (0->d, player-1->1, player-2->2)
     record_scores()
+
     if (turn_count//num_open >= total_rounds-2):
         ended=1
-        print("endedxx")
-        #update_scores()
-        freeze_all()
-    if (turn_count%2 == 0):
-        #record_scores()
-        print("recorded_scores:")
-        print(result_arr)
+        file_append()
+
+        return
+
+
+    # if (turn_count%2 == 0):
+    #     #record_scores()
+    #     print("recorded_scores:")
+    #     print(result_arr)
 
     if (turn_count%num_open == 0):
 
         display_new_round()
 
         rounds = rounds+1
-        print("rounds changed to:")
-        print(rounds)
-        #change_board()
+        # print("rounds changed to:")
+        # print(rounds)
+        change_board()
 
 
     else:
         if (curr_player == 1):
-            print("curr_options1 is:")
-            print(curr_options1)
-            print("val to remove is:")
-            print(rad_val.get())
+            # print("curr_options1 is:")
+            # print(curr_options1)
+            # print("val to remove is:")
+            # print(rad_val.get())
             curr_options1.remove(rad_val.get())
-            print("curr_options1 is after removal:")
-            print(curr_options1)
+            # print("curr_options1 is after removal:")
+            # print(curr_options1)
             #displying next players options
-            display_options(curr_options2, root)
+            #display_options(curr_options2, root)
 
             #highlight and unhighlight appropriate player: (need to show that player 2 will play next - switching from 1 to 2)
-            player_labels[1].configure(font="sans 16 bold")
-            player_labels[0].configure(font="sans 13")
+            # player_labels[1].configure(font="sans 16 bold")
+            # player_labels[0].configure(font="sans 13")
 
 
 
         else:
-            print("curr_options2 is:")
-            print(curr_options2)
-            print("val to remove is:")
-            print(rad_val.get())
+            # print("curr_options2 is:")
+            # print(curr_options2)
+            # print("val to remove is:")
+            # print(rad_val.get())
             curr_options2.remove(rad_val.get())
-            print("curr_options2 is after removal:")
-            print(curr_options2)
+            # print("curr_options2 is after removal:")
+            # print(curr_options2)
             #displying next players options
-            display_options(curr_options1, root)
+            # display_options(curr_options1, root)
 
             #highlight and unhighlight appropriate player: (need to show that player 1 will play next - switching from 2 to 1)
-            player_labels[0].configure(font="sans 16 bold")
-            player_labels[1].configure(font="sans 13")
+            # player_labels[0].configure(font="sans 16 bold")
+            # player_labels[1].configure(font="sans 13")
 
 
         rad_val.set(-1)
@@ -431,26 +452,28 @@ def change_value_matrix(r,c,val, b):
 
     #switch players after every turn
     if (curr_player == 1):
-        print("predicted:")
+        # print("predicted:")
 
         #if starting new round then repeat previous player and highlight appropriately
         if (turn_count%num_open == 0):
-            player_labels[0].configure(font="sans 16 bold")
-            player_labels[1].configure(font="sans 13")
+            # player_labels[0].configure(font="sans 16 bold")
+            # player_labels[1].configure(font="sans 13")
             #print(decide_move(1))
+            q=1
         else:
             #done in "else" since we change only if non-new round
             curr_player = 2
             #print(decide_move(2))
     else:
-        print("predicted:")
+        # print("predicted:")
 
 
         #if starting new round then repeat previous player and highlight appropriately
         if (turn_count%num_open == 0):
-            player_labels[1].configure(font="sans 16 bold")
-            player_labels[0].configure(font="sans 13")
+            # player_labels[1].configure(font="sans 16 bold")
+            # player_labels[0].configure(font="sans 13")
             #print(decide_move(2))
+            q=1
         else:
             #done in "else" since we change only if non-new round
             curr_player = 1
@@ -482,29 +505,17 @@ def change_value_matrix(r,c,val, b):
         assert(1==2),"there was a non 1 or 2 curr_player value"
 
     if (auto_player == curr_player):
-        # t0 = time.time()
-        # for i in range(10000):
-        #     auto_move = decide_move(auto_player)
-        # t1 = time.time()
-        #time.sleep(0)
-
-        #total = t1-t0
-        #print(total)
-
-        time.sleep(0.5)
 
         auto_move = decide_move(auto_player)
-        print("it played:")
-        print(auto_move)
         excel_list = excel_list +  get_pos_val_concat(auto_move)
-        change_value_matrix(auto_move[0],auto_move[1], auto_move[2], button_matrix[auto_move[0]][auto_move[1]])
+        change_value_matrix(auto_move[0],auto_move[1], auto_move[2], None)
 
     else:
         #time.sleep(0)
         #auto_move = decide_move(auto_player-1)
         auto_move = decide_move(curr_player)
         excel_list = excel_list +  get_pos_val_concat(auto_move)
-        #change_value_matrix(auto_move[0],auto_move[1], auto_move[2], button_matrix[auto_move[0]][auto_move[1]])
+        change_value_matrix(auto_move[0],auto_move[1], auto_move[2], None)
 
 
 
@@ -530,7 +541,7 @@ def record_scores():
             result_arr.append(2)
 
     if (odd_sum == even_sum):
-        result_arr.append(0)
+        result_arr.append(1.5)
 
 
 
@@ -546,29 +557,28 @@ def display_new_round():
     global excel_list
 
 
-    if (turn_count//num_open >= total_rounds-2):
+    # if (turn_count//num_open >= total_rounds-2):
 
-        freeze_all()
-        resultarrstr = ""
-        for i in result_arr:
-            resultarrstr = resultarrstr + str(i) + "  "
+        # freeze_all()
+        # resultarrstr = ""
+        # for i in result_arr:
+        #     resultarrstr = resultarrstr + str(i) + "  "
+        #
+        #
+        # p1_wins = result_arr.count(1)
+        # p2_wins = result_arr.count(2)
+        # draw_count = result_arr.count(0)
+        #
+        # resultarrstr =  resultarrstr + "\n"
+        # resultarrstr =  resultarrstr + "P1-> " + str(p1_wins) + "\n"
+        # resultarrstr =  resultarrstr + "P2-> " + str(p2_wins) + "\n"
+        #
+        # resultarrstr =  resultarrstr + "Draw-> " + str(draw_count)
 
 
-        p1_wins = result_arr.count(1)
-        p2_wins = result_arr.count(2)
-        draw_count = result_arr.count(0)
 
-        resultarrstr =  resultarrstr + "\n"
-        resultarrstr =  resultarrstr + "P1-> " + str(p1_wins) + "\n"
-        resultarrstr =  resultarrstr + "P2-> " + str(p2_wins) + "\n"
-
-        resultarrstr =  resultarrstr + "Draw-> " + str(draw_count)
-
-        file_append()
-
-        showinfo("Information", resultarrstr)
-        clearer()
-        exit()
+        # showinfo("Information", resultarrstr)
+        #exit()
 
 
     #assigning correct round_starter player since each round alternates
@@ -581,14 +591,14 @@ def display_new_round():
     curr_options1 = option_matrix1[turn_count//num_open]
     curr_options2 = option_matrix2[turn_count//num_open]
 
-    if (round_start_player == 1):
-        display_options(curr_options1, root)
-    else:
-        display_options(curr_options2, root)
+    # if (round_start_player == 1):
+    #     display_options(curr_options1, root)
+    # else:
+    #     display_options(curr_options2, root)
 
 
     rad_val.set(-1)
-    print("did_setup")
+    # print("did_setup")
 
 
 
@@ -707,19 +717,19 @@ def col_sum_given(i, matrix):
 def change_board():
     global rounds
     global total_rounds
-    freeze_all()
-    unfreeze_range(total_rounds-rounds, 10)
+    #freeze_all()
+    unfreeze_range(total_rounds-rounds, num_open)
 
 
 def quitter():
     exit()
-    print("doing this")
+    #print("doing this")
     global button_matrix
     photo=PhotoImage(file="Black.png")
     button_matrix[1][0].configure(bg="red", state = "disabled")
 
     #print(button_matrix[1][0])
-    print(looper(1))
+    #print(looper(1))
     for a in looper(1):
         button_matrix[a[0]][a[1]].configure(bg="black", state = "disabled")
 
@@ -732,10 +742,10 @@ def starter():
 
     if (p1_target == "even"):
         excel_list.append("E")
-        print("appended")
+        # print("appended")
     elif (p1_target == "odd"):
         excel_list.append("O")
-        print("appended")
+        # print("appended")
     else:
         assert(1==2),"the player target is non even and non odd - wrongly assigned"
 
@@ -749,8 +759,8 @@ def starter():
 
     excel_list = excel_list +  get_pos_val_concat(auto_move)
 
-    change_value_matrix(auto_move[0],auto_move[1], auto_move[2], button_matrix[auto_move[0]][auto_move[1]])
-    root.update_idletasks()
+    change_value_matrix(auto_move[0],auto_move[1], auto_move[2], None)
+    #root.update_idletasks()
 
 def looper(x):
     arr = []
@@ -887,34 +897,32 @@ def fill_inner(val):
         assert (1==2), "player target is not even or odd"
 
 
-    value_matrix[3][4] = val
+    value_matrix[3][4] = 0
     excel_list.append(p1_letter)
-    excel_list = excel_list + get_pos_val_concat([3,4,val])
+    excel_list = excel_list + get_pos_val_concat([3,4,0])
     record_scores()
 
-    value_matrix[5][4] = val
+    value_matrix[5][4] = 0
     excel_list.append(p2_letter)
-    excel_list = excel_list + get_pos_val_concat([5,4,val])
+    excel_list = excel_list + get_pos_val_concat([5,4,0])
     record_scores()
 
-    value_matrix[4][3] = val
+    value_matrix[4][3] = 0
     excel_list.append(p1_letter)
-    excel_list = excel_list + get_pos_val_concat([4,3,val])
+    excel_list = excel_list + get_pos_val_concat([4,3,0])
     record_scores()
 
-    value_matrix[4][5] = val
+    value_matrix[4][5] = 0
     excel_list.append(p2_letter)
-    excel_list = excel_list + get_pos_val_concat([4,5,val])
+    excel_list = excel_list + get_pos_val_concat([4,5,0])
     record_scores()
-
-    #update_scores()
 
 def show_inner():
     global value_matrix
     global button_matrix
     to_show = looper(3)
-    print("ts is:")
-    print(to_show)
+    # print("ts is:")
+    # print(to_show)
 
     #show all those cells that are non-zero in the first ring
     for cell in to_show:
@@ -946,7 +954,6 @@ def file_append():
     #print(result_arr)
     return
 
-
 def clearer():
     global num_ope
 
@@ -955,30 +962,29 @@ def clearer():
 
 
     global value_matrix
-    global button_matrix
+
     global option_matrix1
     global option_matrix2
-    global radio_list
-    global root
+
+
     global rad_val
     global turn_count
     #curr_options = option_matrix[0]
     global curr_options1
     global curr_options2
     global curr_player
-    global vert_labels
-    global hor_labels
+
     global p1_score
     global p1_target
     global p2_score
     global p2_target
-    global score_labels
+
     global max_size
 
 
     global rounds
     global round_start_player
-    global player_labels
+
     global ended
 
     global auto_player
@@ -990,8 +996,7 @@ def clearer():
     # 1 for player 1, 2 for player 2 , 0 for draw when filled
     global result_arr
 
-    # player option label radio_list
-    global p_opt_labels
+
 
     # stores currently open buttons (array of x,y) pair arrays
     # has num_open rows and 2 cols where each col stores x or y of the current open slot
@@ -1019,30 +1024,29 @@ def clearer():
 
 
     del value_matrix
-    del button_matrix
+
     del option_matrix1
     del option_matrix2
-    del radio_list
-    del root
+
+
     del rad_val
     del turn_count
     #curr_options = option_matrix[0]
     del curr_options1
     del curr_options2
     del curr_player
-    del vert_labels
-    del hor_labels
+
+
     del p1_score
     del p1_target
     del p2_score
     del p2_target
-    del score_labels
+
     del max_size
 
 
     del rounds
     del round_start_player
-    del player_labels
     del ended
 
     del auto_player
@@ -1054,8 +1058,7 @@ def clearer():
     # 1 for player 1, 2 for player 2 , 0 for draw when filled
     del result_arr
 
-    # player option label radio_list
-    del p_opt_labels
+
 
     # stores currently open buttons (array of x,y) pair arrays
     # has num_open rows and 2 cols where each col stores x or y of the current open slot
@@ -1068,6 +1071,7 @@ def clearer():
 
     #for analysis
     del excel_list
+
 
 
 

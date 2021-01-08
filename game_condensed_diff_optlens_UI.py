@@ -57,7 +57,7 @@ p_opt_labels = [None for x in range(2)]
 
 # stores currently open buttons (array of x,y) pair arrays
 # has num_open rows and 2 cols where each col stores x or y of the current open slot
-open_slots = []
+open_slots = [[-1 for x in range(2)] for y in range(num_open)]
 
 
 #for debugging
@@ -176,14 +176,8 @@ def render():
 
     freeze_allx()
 
-    unfreeze_range(2,10)
-    unfreeze_range(1,10)
+    unfreeze_range(2,num_open)
     show_inner()
-    update_scores()
-    for i in range(0,9):
-        for j in range(0,9):
-            change_sums(i,j)
-
 
     root.mainloop()
 
@@ -217,9 +211,9 @@ def unfreeze_range(x, count):
         #if want to unfreeze specific cells within the ring
         arr = looper(x)
         print(looper(x))
-        chosen = random.sample(arr, count)
+        chosen = random.sample(arr, num_open)
 
-        open_slots_now = []
+        open_slots = []
 
         for a in chosen:
             #unfreeze the relevant buttons
@@ -227,11 +221,9 @@ def unfreeze_range(x, count):
 
 
             #store the cells that were unfrozen for use by the auto-player
-            open_slots_now.append(copy.deepcopy(a))
+            open_slots.append(copy.deepcopy(a))
         print("opened slots:")
         print(open_slots)
-
-    open_slots = copy.deepcopy(open_slots + open_slots_now)
 
 
 
@@ -246,11 +238,10 @@ def create_all_options():
     global option_matrix1
     global option_matrix2
 
-    #total_options = [1,3,5,7,9,1,3,5,7,9]
+    total_options = [1,2,3,4,5,6,8,9,10,11]
     # # total_options = [1,3,5,7,9,11,13,15,17,19,21,23]
     # # total_options = [0,1,2,3,4,5,6,7,8,9,10,11]
     # # total_options = [0,2,4,6,8,10,12,14,16,18,20,22]
-    total_options = [1,2,5,8,9,1,2,5,8,9]
     for i in range(0,total_rounds-2):
         for j in range(0,num_open//2):
             #print(total_options)
@@ -296,7 +287,7 @@ def display_options(opts, root):
            padx = 20,
            variable=rad_val,
            value=a)
-        radb.grid(row = i, column = 18)
+        radb.grid(row = i, column = 13)
         radio_list.append(radb)
 
 
@@ -336,11 +327,10 @@ def change_value_matrix(r,c,val, b):
     global turn_count
     global ended
     turn_count = turn_count+1
-    # if (turn_count//num_open >= total_rounds-2):
-    #     ended=1
-    #     print("endedxx")
-    #     update_scores()
-    #     freeze_all()
+    if (turn_count//num_open >= total_rounds-2):
+        ended=1
+        print("endedxx")
+        freeze_all()
 
     global open_slots
     open_slots.remove([r,c])
@@ -360,7 +350,6 @@ def change_value_matrix(r,c,val, b):
 
     value_matrix[r][c] = rad_val.get()
     update_scores()
-    change_sums(r,c)
 
     #change text of button pressed
     b.config(text = rad_val.get(), font='sans 13 bold', state="disabled")
@@ -372,11 +361,6 @@ def change_value_matrix(r,c,val, b):
 
     # based on current even and odd sum, decides and appends to the result_arr array (0->d, player-1->1, player-2->2)
     record_scores()
-    if (turn_count//num_open >= total_rounds-2):
-        ended=1
-        print("endedxx")
-        #update_scores()
-        freeze_all()
     if (turn_count%2 == 0):
         #record_scores()
         print("recorded_scores:")
@@ -389,7 +373,7 @@ def change_value_matrix(r,c,val, b):
         rounds = rounds+1
         print("rounds changed to:")
         print(rounds)
-        #change_board()
+        change_board()
 
 
     else:
@@ -491,11 +475,7 @@ def change_value_matrix(r,c,val, b):
         #total = t1-t0
         #print(total)
 
-        time.sleep(0.5)
-
         auto_move = decide_move(auto_player)
-        print("it played:")
-        print(auto_move)
         excel_list = excel_list +  get_pos_val_concat(auto_move)
         change_value_matrix(auto_move[0],auto_move[1], auto_move[2], button_matrix[auto_move[0]][auto_move[1]])
 
@@ -504,7 +484,7 @@ def change_value_matrix(r,c,val, b):
         #auto_move = decide_move(auto_player-1)
         auto_move = decide_move(curr_player)
         excel_list = excel_list +  get_pos_val_concat(auto_move)
-        #change_value_matrix(auto_move[0],auto_move[1], auto_move[2], button_matrix[auto_move[0]][auto_move[1]])
+        change_value_matrix(auto_move[0],auto_move[1], auto_move[2], button_matrix[auto_move[0]][auto_move[1]])
 
 
 
@@ -708,7 +688,7 @@ def change_board():
     global rounds
     global total_rounds
     freeze_all()
-    unfreeze_range(total_rounds-rounds, 10)
+    unfreeze_range(total_rounds-rounds, num_open)
 
 
 def quitter():
@@ -906,8 +886,6 @@ def fill_inner(val):
     excel_list.append(p2_letter)
     excel_list = excel_list + get_pos_val_concat([4,5,val])
     record_scores()
-
-    #update_scores()
 
 def show_inner():
     global value_matrix
