@@ -67,6 +67,9 @@ next_button = None
 #for analysis
 excel_list = []
 
+#labels for ranges that have been secured by a player
+secured_labels = []
+
 
 
 def main():
@@ -80,6 +83,7 @@ def render():
     global rad_val
     global player_labels
     global next_button
+    global open_slots
 
 
     root.title("GOdd Even")
@@ -175,14 +179,26 @@ def render():
     o1 = tk.Label()
 
     freeze_allx()
+    counter=0
+    while(1==1):
+        counter = counter+1
+        open_slots = []
 
-    unfreeze_range(2,10)
-    unfreeze_range(1,10)
+        unfreeze_range(2,10)
+        unfreeze_range(1,10)
+        if (check_loner_open()):
+            break
+    print("it took %d times to choose a board" % counter)
+
+    open_buttons()
+
     show_inner()
     update_scores()
     for i in range(0,9):
         for j in range(0,9):
             change_sums(i,j)
+
+    update_secured()
 
 
     root.mainloop()
@@ -222,9 +238,6 @@ def unfreeze_range(x, count):
         open_slots_now = []
 
         for a in chosen:
-            #unfreeze the relevant buttons
-            button_matrix[a[0]][a[1]].configure( state = "normal", text = value_matrix[a[0]][a[1]])
-
 
             #store the cells that were unfrozen for use by the auto-player
             open_slots_now.append(copy.deepcopy(a))
@@ -250,7 +263,7 @@ def create_all_options():
     # # total_options = [1,3,5,7,9,11,13,15,17,19,21,23]
     # # total_options = [0,1,2,3,4,5,6,7,8,9,10,11]
     # # total_options = [0,2,4,6,8,10,12,14,16,18,20,22]
-    total_options = [1,2,5,8,9,1,2,5,8,9]
+    total_options = [0,1,2,3,4,5,6,7,8,9]
     for i in range(0,total_rounds-2):
         for j in range(0,num_open//2):
             #print(total_options)
@@ -262,19 +275,17 @@ def create_all_options():
 
 
 
-    # option_matrix1[0][0] = 1
-    # option_matrix1[0][1] = 3
-    # option_matrix1[0][2] = 5
-    # option_matrix1[0][3] = 7
-    # option_matrix1[0][4] = 9
-    # option_matrix1[0][5] = 10
+    # option_matrix1[0][0] = 2
+    # option_matrix1[0][1] = 2
+    # option_matrix1[0][2] = 4
+    # option_matrix1[0][3] = 6
+    # option_matrix1[0][4] = 8
     #
     # option_matrix1[1][0] = 1
     # option_matrix1[1][1] = 3
     # option_matrix1[1][2] = 5
-    # option_matrix1[1][3] = 6
-    # option_matrix1[1][4] = 7
-    # option_matrix1[1][5] = 8
+    # option_matrix1[1][3] = 7
+    # option_matrix1[1][4] = 9
 
 
 
@@ -359,6 +370,7 @@ def change_value_matrix(r,c,val, b):
     global player_labels
 
     value_matrix[r][c] = rad_val.get()
+    update_secured()
     update_scores()
     change_sums(r,c)
 
@@ -382,6 +394,44 @@ def change_value_matrix(r,c,val, b):
         print("recorded_scores:")
         print(result_arr)
 
+
+    # else:
+    if (curr_player == 1):
+        print("curr_options1 is:")
+        print(curr_options1)
+        print("val to remove is:")
+        print(rad_val.get())
+        curr_options1.remove(rad_val.get())
+        print("curr_options1 is after removal:")
+        print(curr_options1)
+        #displying next players options
+        display_options(curr_options2, root)
+
+        #highlight and unhighlight appropriate player: (need to show that player 2 will play next - switching from 1 to 2)
+        player_labels[1].configure(font="sans 16 bold")
+        player_labels[0].configure(font="sans 13")
+
+
+
+    else:
+        print("curr_options2 is:")
+        print(curr_options2)
+        print("val to remove is:")
+        print(rad_val.get())
+        curr_options2.remove(rad_val.get())
+        print("curr_options2 is after removal:")
+        print(curr_options2)
+        #displying next players options
+        display_options(curr_options1, root)
+
+        #highlight and unhighlight appropriate player: (need to show that player 1 will play next - switching from 2 to 1)
+        player_labels[0].configure(font="sans 16 bold")
+        player_labels[1].configure(font="sans 13")
+
+
+    rad_val.set(-1)
+
+
     if (turn_count%num_open == 0):
 
         display_new_round()
@@ -392,51 +442,15 @@ def change_value_matrix(r,c,val, b):
         #change_board()
 
 
-    else:
-        if (curr_player == 1):
-            print("curr_options1 is:")
-            print(curr_options1)
-            print("val to remove is:")
-            print(rad_val.get())
-            curr_options1.remove(rad_val.get())
-            print("curr_options1 is after removal:")
-            print(curr_options1)
-            #displying next players options
-            display_options(curr_options2, root)
-
-            #highlight and unhighlight appropriate player: (need to show that player 2 will play next - switching from 1 to 2)
-            player_labels[1].configure(font="sans 16 bold")
-            player_labels[0].configure(font="sans 13")
-
-
-
-        else:
-            print("curr_options2 is:")
-            print(curr_options2)
-            print("val to remove is:")
-            print(rad_val.get())
-            curr_options2.remove(rad_val.get())
-            print("curr_options2 is after removal:")
-            print(curr_options2)
-            #displying next players options
-            display_options(curr_options1, root)
-
-            #highlight and unhighlight appropriate player: (need to show that player 1 will play next - switching from 2 to 1)
-            player_labels[0].configure(font="sans 16 bold")
-            player_labels[1].configure(font="sans 13")
-
-
-        rad_val.set(-1)
-
-
     #switch players after every turn
     if (curr_player == 1):
         print("predicted:")
 
         #if starting new round then repeat previous player and highlight appropriately
         if (turn_count%num_open == 0):
-            player_labels[0].configure(font="sans 16 bold")
-            player_labels[1].configure(font="sans 13")
+            curr_player = 2
+            # player_labels[0].configure(font="sans 16 bold")
+            # player_labels[1].configure(font="sans 13")
             #print(decide_move(1))
         else:
             #done in "else" since we change only if non-new round
@@ -448,8 +462,9 @@ def change_value_matrix(r,c,val, b):
 
         #if starting new round then repeat previous player and highlight appropriately
         if (turn_count%num_open == 0):
-            player_labels[1].configure(font="sans 16 bold")
-            player_labels[0].configure(font="sans 13")
+            curr_player = 1
+            # player_labels[1].configure(font="sans 16 bold")
+            # player_labels[0].configure(font="sans 13")
             #print(decide_move(2))
         else:
             #done in "else" since we change only if non-new round
@@ -497,14 +512,14 @@ def change_value_matrix(r,c,val, b):
         print("it played:")
         print(auto_move)
         excel_list = excel_list +  get_pos_val_concat(auto_move)
-        change_value_matrix(auto_move[0],auto_move[1], auto_move[2], button_matrix[auto_move[0]][auto_move[1]])
+        #change_value_matrix(auto_move[0],auto_move[1], auto_move[2], button_matrix[auto_move[0]][auto_move[1]])
 
     else:
         #time.sleep(0)
         #auto_move = decide_move(auto_player-1)
         auto_move = decide_move(curr_player)
         excel_list = excel_list +  get_pos_val_concat(auto_move)
-        change_value_matrix(auto_move[0],auto_move[1], auto_move[2], button_matrix[auto_move[0]][auto_move[1]])
+        #change_value_matrix(auto_move[0],auto_move[1], auto_move[2], button_matrix[auto_move[0]][auto_move[1]])
 
 
 
@@ -933,6 +948,92 @@ def get_pos_val_concat(pos_val_arr):
     col_char = chr(ascii_col)
     return [str(col_char) + str(row_visual),val]
 
+
+def check_loner_open():
+    global open_slots
+
+    rows_filled = [row[0] for row in open_slots]
+    cols_filled = [row[1] for row in open_slots]
+
+    satisfies = True
+
+    for elem in rows_filled:
+        if (rows_filled.count(elem) == 1):
+            satisfies = False
+            return False
+
+    for elem in cols_filled:
+        if (cols_filled.count(elem) == 1):
+            satisfies = False
+            return False
+
+    return True
+
+
+def update_secured():
+    global value_matrix
+    global secured_labels
+    global open_slots
+    global root
+
+    open_rows = []
+    open_cols = []
+
+    for slot in open_slots:
+        if (slot[0] not in open_rows):
+            open_rows.append(copy.deepcopy(slot[0]))
+
+        if (slot[1] not in open_cols):
+            open_cols.append(copy.deepcopy(slot[1]))
+    print("open cols then rows:")
+    print(open_cols)
+    print(open_rows)
+
+    even_secured = 0
+    odd_secured = 0
+
+    for rc in range(0,8):
+        if (rc not in open_rows):
+            curr_row_sum = row_sum(rc)
+            if (curr_row_sum%2 == 0):
+                even_secured = even_secured + curr_row_sum
+            else:
+                odd_secured = odd_secured + curr_row_sum
+
+        if (rc not in open_cols):
+            curr_col_sum = col_sum(rc)
+            if (curr_col_sum%2 == 0):
+                even_secured = even_secured + curr_col_sum
+            else:
+                odd_secured = odd_secured + curr_col_sum
+
+    if (secured_labels == []):
+        #even label
+        sec_even = tk.Label(root, text="even - %d" %(even_secured),
+            borderwidth=0, height = 3, width = 15)
+        sec_even.grid(row=0,column=13, columnspan = 2, rowspan = 1)
+        secured_labels.append(sec_even)
+
+
+        #odd_label
+        sec_odd = tk.Label(root, text="odd - %d" %(odd_secured),
+            borderwidth=0, height = 3, width = 15)
+        sec_odd.grid(row=1,column=13, columnspan = 2, rowspan = 1)
+        secured_labels.append(sec_odd)
+
+    else:
+        #if the list is already populated, only configure the text in the labels that already exist
+        secured_labels[0].configure(text="even - %d" %(even_secured))
+        secured_labels[1].configure(text="odd - %d" %(odd_secured))
+
+
+
+def open_buttons():
+    #unfreeze the relevant buttons
+    global button_matrix
+    global value_matrix
+    for a in open_slots:
+        button_matrix[a[0]][a[1]].configure( state = "normal", text = value_matrix[a[0]][a[1]])
 
 def file_append():
     global result_arr

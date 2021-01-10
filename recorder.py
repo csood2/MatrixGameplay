@@ -1,4 +1,4 @@
-import game_condensed_firstrandom_no_UI
+import game_condensed_firstrandom_allopen_no_UI
 import time
 import importlib
 # import tkinter as tk
@@ -16,9 +16,9 @@ start = time.time()
 
 for i in range (100):
 
-    importlib.reload(game_condensed_firstrandom_no_UI)
-    game_condensed_firstrandom_no_UI.main()
-    if (i%99 == 0):
+    importlib.reload(game_condensed_firstrandom_allopen_no_UI)
+    game_condensed_firstrandom_allopen_no_UI.main()
+    if (i==99):
         print(time.time() - start)
         start = time.time()
 
